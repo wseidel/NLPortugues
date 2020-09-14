@@ -1,0 +1,12 @@
+Funções de Ativação:
+relu
+sigmoid
+softmax
+softplus
+softsign
+tanh
+selu
+elu
+exponential
+
+Ver mais em: https://keras.io/api/layers/activations
