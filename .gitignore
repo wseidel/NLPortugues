@@ -4,6 +4,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#
+# */output/*
+# */output/*
+EP\ 1/data/*
+EP\ 1/outputs/*
+Semana\ 05/logs/*
+
+
 # C extensions
 *.so
 

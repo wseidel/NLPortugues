@@ -1,0 +1,362 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{gensymb}
+\usepackage{verbatim} % env for block comment 
+\usepackage{ragged2e} % para usar flusleft
+\usepackage[brazilian]{babel}
+\usepackage{minted}
+\usemintedstyle{tango}
+
+
+\begin{document}
+
+\begin{center}
+MAC5725 – Linguística Computacional\\
+EP 1: Word2Vec\\
+Wesley Seidel Carvalho\\
+NUSP: 6544342\\
+2020-02\\ %\hline
+\end{center}
+
+\begin{comment}
+Este é um comentário de múltiplas linhas.
+Com certeza útil para esconder partes grandes de texto ainda não revisadas.
+Ou para encontrar um problema do seu código LaTeX que não compila.
+\end{comment}
+
+{\Large \textbf{Parte 1}: Fundamentos matemáticos do word2vec}\\
+
+
+\noindent 
+
+{\Large \textbf{Questão (a)}}\\
+
+Sendo $y$ o vetor \textbf{one-hot} de $w$, então a posição $y_w$ será 1 apenas quando  $w = o$, sendo assim:
+
+% \begin{align}\label{q_dezen}
+% - \sum_{w \in Vocab} y_w \log( \hat{y}_w ) = - \log( \hat{y}_w )
+% \end{align}
+
+
+\begin{align}
+- \sum_{w \in Vocab} y_w \log( \hat{y}_w ) = -[0 \log( \hat{y}_1 ) + .. + 1 \log( \hat{y}_o ) + .. +0 \log( \hat{y}_{|V|} )] = - \log( \hat{y}_o )
+\end{align}
+
+
+% -
+% -
+% AQUI COMEÇA A RESOLUCAO DA QUESTAO B
+% -
+% -
+{\Large \textbf{Questão (b)}}\\
+
+Para simplificar escrita, fazemos: $J = J_{naive-softmax}(v_c, o, U)$
+\begin{align}
+J = - \log( \frac{ \exp( u_o^T . v_c ) }{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) } )
+\end{align}
+
+\begin{align*}
+J = - [\log( \exp( u_o^T . v_c )) - \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]
+\end{align*}
+
+
+\begin{align*}
+\frac{\partial J}{ \partial v_c} = - \frac{ \partial \log( \exp( u_o^T . v_c ))}{  \partial v_c} + \frac{ \partial \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]}{  \partial v_c}
+\end{align*}
+
+\begin{align*}
+\frac{\partial J}{ \partial v_c} = - u_o^T + \frac{ \partial \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]}{  \partial v_c}
+\end{align*}
+
+
+\begin{align*}
+\frac{\partial J}{ \partial v_c} = - u_o^T + \frac{1}{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) } . \sum_{k \in Vocab} \exp( u_k^T . v_c ) u_k^T
+\end{align*}
+
+% Como a expresão  $\frac{1}{{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) }}$ é constante em relação a somatória de $k$, fazemos:
+
+\begin{align}
+\frac{\partial J}{ \partial v_c} = - u_o^T + \sum_{k \in Vocab} \frac{ \exp( u_k^T . v_c ) u_k^T}{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) }
+\end{align}
+
+Até aqui a derivada já está calculada, iremos agora escrever em termos de $y$, $\hat{y}$ e $U$. Repare que a expresão  $\frac{ \exp( u_k^T . v_c )}{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) }$ é $y_k$, logo:
+
+\begin{align*}
+\frac{\partial J}{ \partial v_c} = - u_o^T + \sum_{k \in Vocab} y_k u_k^T
+\end{align*}
+
+\begin{align*}
+\frac{\partial J}{ \partial v_c} = - u_o^T +  U^T \hat{y} = U^T \hat{y} - u_o^T
+\end{align*}
+
+Aqui, temo que $u_o^T = y$, pois $y$ é one-hot de $o$ sobre $U$, logo:
+
+\begin{align}
+\frac{\partial J}{ \partial v_c} = U^T \hat{y} - U^T . y 
+\end{align}
+
+E finalmente temos:
+
+\begin{align}\label{q_dezen}
+\frac{\partial J_{naive-softmax}(v_c, o, U)}{ \partial v_c} = U^T [ \hat{y} - y ]
+\end{align}
+
+% -
+% -
+% AQUI COMEÇA A RESOLUCAO DA QUESTAO C
+% -
+% -
+{\Large \textbf{Questão (c)}}\\
+
+Para simplificar escrita, fazemos: $J = J_{naive-softmax}(v_c, o, U)$
+
+\noindent
+
+\begin{align}
+J = - \log( \frac{ \exp( u_o^T . v_c ) }{ \sum_{w \in Vocab} \exp(  u_w^T . v_c ) } )
+\end{align}
+
+\begin{align}
+J = - [\log( \exp( u_o^T . v_c )) - \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]
+\end{align}
+
+
+(c) Caso 1: $w = o$
+
+\begin{align*}
+\frac{\partial J(v_c, o, U) }{\partial u_{w = 0}} = - \frac{ \partial \log( \exp( u_o^T . v_c ))}{  \partial u_{w = 0}} + \frac{ \partial \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]}{  \partial u_{w = 0}}
+\end{align*}
+
+\begin{align}\label{q_dezen}
+\frac{\partial J(v_c, o, U) }{\partial u_{w = 0}} = - v_c + \frac{ \partial \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]}{  \partial u_{w = 0}} 
+\end{align}
+
+Trabalhando o segundo termo de forma análoga à (b), temos:
+
+\begin{align*}
+\frac{\partial J(v_c, o, U) }{\partial u_{w = 0}} = - v_c + \sum_{w \in Vocab} \hat{y}_{w} . v_c  = - v_c + \hat{y}_{w=o} . v_c
+\end{align*}
+
+
+\begin{align}
+\frac{\partial J(v_c, o, U) }{\partial u_{w = 0}} = v_c [\hat{y}_{w=0} -1] 
+\end{align}
+
+(c) Caso 2: $w \neq o$
+
+\begin{align}
+\frac{\partial J(v_c, o, U) }{\partial u_{w \neq o}} = - \frac{ \partial \log( \exp( u_o^T . v_c ))}{  \partial u_{w \neq o}} + \frac{ \partial \log( \sum_{w \in Vocab} \exp(  u_w^T . v_c )  )]}{  \partial u_{w \neq o}}
+\end{align}
+
+\begin{align*}
+\frac{\partial J(v_c, o, U) }{\partial u_{w \neq o}} = 0 + \sum_{w \in Vocab} \hat{y}_{w} . v_c  = \hat{y}_{w \neq o} . v_c
+\end{align*}
+
+
+
+
+\begin{align}
+\frac{\partial J(v_c, o, U) }{\partial u_{w \neq o}} = \hat{y}_{w \neq o} v_c
+\end{align}
+
+Para termos os dois resultado em termos de $y$, $\hat{y}$ e $v_c$, fazemos:
+
+Como no vetor $y$ só teremos o valor 1 na posição $w = o$, o que recai no caso 1; E todas as posições que dizem respeito à $w \neq o$ são igual a 0, então podemos afirmar que:
+
+\begin{align}\label{q_dezen}
+\frac{\partial J(v_c, o, U) }{\partial u_{w}} = v_c [\hat{y}_{w} - y_{w}] 
+\end{align}
+
+
+% -
+% -
+% AQUI COMEÇA A RESOLUCAO DA QUESTAO D
+% -
+% -
+{\Large \textbf{Questão (d)}}\\
+
+\begin{align}
+\sigma (x) = \frac{ 1 }{ 1 + e^{-x} } = \frac{ e^{x} }{ e^{x} + 1 }
+\end{align}
+
+Fazemos $u= e^{x} $ e  $v= e^{x} + 1$ e suas derivadas $u' = e^{x} $ e $v' = e^{x}$. Sendo assim, $\sigma (x) = \frac{ u }{ v }$, e sua derivada:
+
+
+\begin{align}
+\sigma' (x) = \frac{ e^{x} }{ (e^{x} +1)^2 }
+\end{align}
+
+Escrevendo em termos de $\sigma (x)$:
+\begin{align}\label{XXXX}
+\sigma' (x) = \frac{ e^{x} }{ (e^{x} +1)^2 } = \frac{ e^{x} }{ (e^{x} +1) } \frac{ 1 }{ (e^{x} +1) } = \sigma (x) .( \frac{ 1 }{ (e^{x} +1) } )
+\end{align}
+
+Desenvolvendo o termo $\frac{ 1 }{ (e^{x} +1) }$ da expressão (\ref{XXXX}) temos:
+
+\begin{align}
+\frac{ 1 }{ e^{x} +1 } = \frac{ 1 }{ e^{x} +1 } + e^{x} - e^{x} = \frac{ 1 + e^{x} - e^{x} }{ e^{x} +1 } = \frac{ e^{x} + 1 }{ e^{x} +1 } - \frac{ e^{x} }{ e^{x} +1 } =  1 - \frac{ e^{x} }{ e^{x} +1 }
+\end{align}
+
+\begin{align}\label{XXXX2}
+\frac{ 1 }{ e^{x} +1 } = 1 - \sigma (x)
+\end{align}
+
+Substituindo o resultado de (\ref{XXXX2}) em (\ref{XXXX}), temos finalmente:
+
+\begin{align}\label{XXXX}
+\sigma' (x) = \sigma (x) .( 1 - \sigma (x) )
+\end{align}
+
+
+\pagebreak
+
+{\Large \textbf{Amostragem Negativa}}\\
+
+% -
+% -
+% AQUI COMEÇA A RESOLUCAO DA QUESTAO E
+% -
+% -
+{\Large \textbf{Questão (e)}}\\
+
+\begin{align}
+J_{amostra-negativa}(v_c, o, U) =  - log( \sigma(  u_o^T . v_c ) ) - \sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) )
+\end{align}
+\noindent
+
+Para simplificação fazemos $J = J_{amostra-negativa}(v_c, o, U)$.
+
+
+\textbf{e.1: Derivada de $J$ em relação $v_c$}:
+
+\begin{align}
+\frac{\partial J}{\partial v_c} = \frac{\partial [ -log( \sigma(  u_o^T . v_c ) ) - \sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ]}{\partial v_c}
+\end{align}
+
+\noindent
+
+\begin{align}
+\frac{\partial J}{\partial v_c} = \frac{\partial}{\partial v_c} [ -log( \sigma(  u_o^T . v_c ) )] -\frac{\partial}{\partial v_c} [\sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ] 
+\end{align}
+\noindent
+
+
+\begin{align}
+\frac{dJ}{dv_c} =  - [1- \sigma(  u_o^T . v_c ) ] u_o + \sum_{k = 1}^K u_k^T [1- \sigma( -  u_k^T . v_c ) ]
+\end{align}
+\noindent
+
+% (e.2: wrt $u_o$) 
+\textbf{e.2: Derivada de $J$ em relação $u_o$}:
+
+\begin{align}
+\frac{\partial J}{\partial u_o} = \frac{\partial [ -log( \sigma(  u_o^T . v_c ) ) - \sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ]}{\partial u_o}
+\end{align}
+
+
+\begin{align}
+\frac{\partial J}{\partial u_o} = \frac{\partial}{\partial u_o} [ -log( \sigma(  u_o^T . v_c ) )] -\frac{\partial}{\partial u_o} [\sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ] 
+\end{align}
+\noindent
+
+\begin{align}
+\frac{\partial J}{\partial u_o} = - [1- \sigma(  u_o^T . v_c ) ] v_c - \sum_{k = 1}^K 1 - \sigma( - u_k^T . v_c ) \frac{\partial  u_k^T . v_c  }{\partial u_o}
+\end{align}
+\noindent
+
+
+Como $o$ não pertence ao conjunto $K$, logo o resultado do segundo termo é $0$, então:
+
+\begin{align}
+\frac{dJ}{du_o} =  - [1- \sigma(  u_o^T . v_c ) ] v_c + 0
+\end{align}
+\noindent
+
+
+
+% (e.3: wrt $u_k$) 
+\textbf{e.3: Derivada de $J$ em relação $u_k$}:
+
+\begin{align}
+\frac{\partial J}{\partial u_k} = \frac{\partial [ -log( \sigma(  u_o^T . v_c ) ) - \sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ]}{\partial u_k}
+\end{align}
+
+
+\begin{align}
+\frac{\partial J}{\partial u_k} = \frac{\partial}{\partial u_k} [ -log( \sigma(  u_o^T . v_c ) )] -\frac{\partial}{\partial u_k} [\sum_{k = 1}^K log( \sigma( - u_k^T . v_c ) ) ] 
+\end{align}
+
+\begin{align}
+\frac{\partial J}{\partial u_k} = \frac{\partial}{\partial u_k} [ -log( \sigma(  u_o^T . v_c ) )] - [\sum_{k = 1}^K \frac{1}{log( \sigma( - u_k^T . v_c ) )} .\sigma'( - u_k^T . v_c ). \frac{\partial - u_k^T . v_c }{\partial u_k} ]
+\end{align}
+
+
+\begin{align}
+\frac{\partial J}{\partial u_k} = -  \frac{1}{\sigma(  u_o^T . v_c )} . \sigma'(  u_o^T . v_c )  \frac{\partial u_o^T . v_c}{ \partial u_k } - \sum_{k = 1}^K [-v_c (1 - \sigma( - u_k^T . v_c )] 
+\end{align}
+
+Como a derivada de $u_o^T . v_c$ é 0 em relação a $u_k$, temos:
+
+\begin{align}
+\frac{\partial J}{\partial u_k} = 0 + \sum_{k = 1}^K [v_c (1 - \sigma( - u_k^T . v_c )]
+\end{align}
+
+E finalmente:
+\begin{align}
+\frac{dJ}{du_k} =  \sum_{k = 1}^K v_c [1- \sigma( -  u_k^T . v_c ) ]
+\end{align}
+\noindent
+
+% Descreva com uma frase por que esta função de custo é muito mais eficiente de calcular do que o custo do naive softmax:
+% A função de custo de amostragem negativa é mais eficiente porque
+% apenas um subconjunto de palavras é utilizado para a realização dos
+% cálculos, em contrapartida, para computar a função naive Softmax é
+% necessário passar por todo o vocabulário
+\textbf{Comentário}: Na \textbf{função de custo naive softmax} é necessário utilizar todo o vocabulário para o cálculo do custo, enquanto na \textbf{função de custo das amostragem negativa} é utilizado apenas um subconjunto de palavras para a realização do cálculo.
+
+
+% -
+% -
+% AQUI COMEÇA A RESOLUCAO DA QUESTAO F
+% -
+% -
+{\Large \textbf{Questão (f)}}\\
+
+Derivar $J$ em relação à $U$, $v_c$ e $v_w$.
+
+\begin{align}
+J_{skip-gram} (v_c, w_{t−m}, ... , w_{t+m}, U ) =  \sum_{ \substack{ -m \leq j \leq m \\ j \neq 0 }} J( v_c, w_{t+1}, U )
+\end{align}
+
+\textbf{f.1: Derivada de $J$ em relação $U$}:
+
+\begin{align}
+\frac{\partial J}{\partial U} =  \sum_{ \substack{ -m \leq j \leq m \\ j \neq 0 }} \frac{d J( v_c, w_{t+j}, U ) }{ \partial U}
+\end{align}
+
+\textbf{f.2: Derivada de $J$ em relação $v_c$}:
+
+\begin{align}
+\frac{\partial J}{\partial v_c} =  \sum_{ \substack{ -m \leq j \leq m \\ j \neq 0 }} \frac{d J( v_c, w_{t+j}, U ) }{\partial v_c}
+\end{align}
+
+\textbf{f.3: Derivada de $J$ em relação $v_{w \neq c }$}:
+
+\begin{align}
+\frac{\partial J}{\partial v_{w \neq c}} =  \sum_{ \substack{ -m \leq j \leq m \\ j \neq 0 }} \frac{d J( v_c, w_{t+j}, U ) }{\partial v_{w \neq c}}  = 0
+\end{align}
+
+
+\noindent
+
+
+\end{document}
