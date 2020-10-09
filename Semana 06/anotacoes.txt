@@ -1,0 +1,56 @@
+Com 75 palavras e:
+
+#     layers.Dense(128, activation='relu'), # SEM DROPOUT
+#     layers.Dropout(0.4, seed=random.randint(0,15)),  # SEM RELU
+
+    Epoch 5/5
+    250/250 [==============================] - 15s 60ms/step - loss: 0.3787 - acc: 0.8662
+    Model: "sequential_74"
+
+
+    63/63 [==============================] - 1s 20ms/step - loss: 0.4287 - acc: 0.8375
+    Loss:  0.428655743598938
+    Accuracy:  0.83749997615814
+
+****************************************************
+Com 75 palavras e:
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3, seed=random.randint(0,15)),
+    
+    Epoch 15/15
+    250/250 [==============================] - 20s 80ms/step - loss: 0.0528 - acc: 0.9894
+    Model: "sequential_70"
+
+
+    63/63 [==============================] - 2s 31ms/step - loss: 0.4197 - acc: 0.8770
+    Loss:  0.4197435975074768
+    Accuracy:  0.8769999742507935
+
+****************************************************
+
+
+Com 75 palavras e:
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.4, seed=random.randint(0,15)),
+
+    Epoch 15/15
+    250/250 [==============================] - 32s 126ms/step - loss: 0.3755 - acc: 0.8622
+    Model: "sequential_72"
+
+    63/63 [==============================] - 2s 35ms/step - loss: 0.4325 - acc: 0.8755
+    Loss:  0.432535320520401
+    Accuracy:  0.8755000233650208
+
+****************************************************
+
+Com 75 palavras e:
+    # layers.Dense(128, activation='relu'), SEM A CAMADA DENSA DE RELU
+    layers.Dropout(0.4, seed=random.randint(0,15)),
+
+    Epoch 5/5
+    250/250 [==============================] - 14s 55ms/step - loss: 0.1397 - acc: 0.9617
+    Model: "sequential_73"
+
+    63/63 [==============================] - 1s 20ms/step - loss: 0.3066 - acc: 0.8760
+    Loss:  0.30660831928253174
+    Accuracy:  0.8759999871253967
