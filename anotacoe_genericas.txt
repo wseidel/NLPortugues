@@ -1,0 +1,47 @@
+
+def GRU(h, x):
+    comb_xh = concatena(x,h)
+    sig_combxh = sigmoid(comb_xh)
+
+    h1 = ope_X(h, sig_combxh)
+
+    comb_h1_x = concatena(x,h1)
+    tan_comb_h1_x = tan(comb_h1_x)
+
+    opeX_ = ope_x(tan_comb_h1_x, sig_combxh )
+
+    menos1 = menos1( sig_combxh )
+
+    h2 = ope_X(menos1, h)
+
+    h_output = ope_+(opeX_, h2)
+
+    return h_output
+
+
+
+def LSTM(c(c, h, x):
+    comb_xh = concatena( x,  h)
+
+    sigA = sigmoid(comb_xh)
+    tanA = tan(comb_xh)
+
+    X_sigtan = ope_X( sigA, tanA)
+
+    c1 = ope_X(c, sigA)
+
+    c_output = ope_+(c1,X_sigtan)
+
+    tan_c_output = tan(c_output)
+
+    h_output = ope_X(sigA, tan_c_output )
+
+    return tan_c_output, h_output
+
+uso:
+
+ct = [0,0,0]
+ht = [0,0,0]
+for input in inputs:
+    ct, ht = LSTM(ct, ht, input)
+
