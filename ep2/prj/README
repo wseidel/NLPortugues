@@ -1,0 +1,86 @@
+Descrição de uso do programa
+============================
+
+O programa executa o preprocessamento, treino e teste em uma mesma execução.
+Dado a quantidade de dados trabalhados, não foi necessário a separação destas etapas em scripts ou por chamadas diferentes.
+
+Os valores Defaults são:
+	- vocab_size: 20000
+	- tammax_sentence: 40
+	- epocas: 100
+	- Camada Embedding: Camada Embeddind "vazia" do TensoFlow
+	- Camada LSTM: lstm não bidirecional
+	- Dropout: 0
+
+---------------
+
+O programa está preparado para argumentos de linha de comando.
+
+Ao executar: ``python ep2.py -h``, temos a seguinte mensagem de ajuda: 
+
+```
+usage: ep2.py [-h] --b2w_path B2W_PATH [--lstm_bidirect] [--nilc_path NILC_PATH] [--dropout DROPOUT] [--tammax_sentence TAMMAX_SENTENCE]
+              [--vocab_size VOCAB_SIZE] [--epocas EPOCAS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --b2w_path B2W_PATH   Caminho para o arquivo cotendo dados originais: B2W-Reviews01.csv
+  --lstm_bidirect       Utiliza a camada LSTM Bidirecional ao invés da simples. Default: desligado
+  --nilc_path NILC_PATH
+                        Caminho para o arquivo word2vec do NILC. Se não especificado, será usado embedding vazio.
+  --dropout DROPOUT     Valor em float da camada de Dropout. Default: 0. Exemplo: --dropout 0.5
+  --tammax_sentence TAMMAX_SENTENCE
+                        Tamanho máximo da sentença a ser usada. Default: 40
+  --vocab_size VOCAB_SIZE
+                        Tamanho do Vocabulário. Default: 20.000
+  --epocas EPOCAS       Quantidade de épocas. Default: 100
+```
+
+
+---------------
+
+
+Exemplo de uso mínimo:
+
+Ao utilizar o exemplo de uso mínimo, o programa irá utilizar os valores defaults,
+
+```
+python ep2.py --b2w_path  ~/workspaces/usp/b2w-reviews01/B2W-Reviews01.csv
+```
+
+---------------
+
+Exemplo de uso completo:
+
+```
+python ep2.py \
+		--dropout 0.25  \
+		--tammax_sentence 30 \
+		--vocab_size 1000 \
+		--epocas 10 \
+		--lstm_bidirect \
+		--b2w_path  ~/workspaces/usp/b2w-reviews01/B2W-Reviews01.csv  \
+		--nilc_path ~/workspaces/usp/NILC/word2vec_200k.txt 
+```
+---------------
+
+No arquivo ```run_experiments.sh``` está o conjunto de comandos que utilizei para o experimento.
+
+---------------
+Saída:
+	O programa cria duas pastas no mesmo local de execução:
+	- saved_models: Aqui ele salva os checkpoints. Está configurado para gravar o melhor a cada 5 epocas.
+	- saved_figs: Aqui ele salva duas figuras para execução completa do programa:
+		- xxx_Accuracy.jpg
+		- xxx_Loss.jpg
+		- xxx é o nome do modelo usando. Utilizei os nomes das camadas para compor o nome. 
+				Por conta disso o nome do arquivo é bastante descritivo. :)
+		Exemplo:
+		- Tam_Sentenca:40_Rede:_TextVec_20000_Emb_NILC_20001_tokens_3845_miss_BIDIRECT_LSTM_32_Dropout_0.5_Dense_5__Accuracy.jpg
+		- Tam_Sentenca:40_Rede:_TextVec_20000_Emb_NILC_20001_tokens_3845_miss_BIDIRECT_LSTM_32_Dropout_0.0_Dense_5__Loss.jpg
+
+		Comentários:
+			Em cada figura, também está presente um texto descritivo da rede utilizada.
+
+
+
